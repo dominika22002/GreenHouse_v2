@@ -20,22 +20,22 @@ void WaterManager::automatic(){
 
     analogSensor.measure();
     Serial.printf("Reed Sensor: %d",reedSensor.isSensorClose()? 1 : 0);
-    Statuses::instance().setAnalogSensorValue(analogSensor.getValue());
+    Statuses::instance().analogSensorValue = analogSensor.getValue();
 
     if (analogSensor.getValue() <= MIN_VAL_WATER_POT) {
         if (!reedSensor.isSensorClose()){
             waterPomp.on();
-            Statuses::instance().setIsWaterPompOn(true);
+            Statuses::instance().isWaterPompOn = true;
 
         } else {
             waterPomp.off();
-            Statuses::instance().setIsWaterPompOn(false);
+            Statuses::instance().isWaterPompOn = false;
         }
     } else if (analogSensor.getValue() >= MAX_VAL_WATER_POT) {
         waterPomp.off();
-        Statuses::instance().setIsWaterPompOn(false);
+        Statuses::instance().isWaterPompOn = false;
     }
-    Statuses::instance().setReedSensorValue(reedSensor.isSensorClose());
+    Statuses::instance().reedSensorValue = reedSensor.isSensorClose();
 
 }
 
@@ -43,21 +43,21 @@ void WaterManager::manual(bool waterPlants){
     Serial.println("WaterManager::manual()");
 
     analogSensor.measure();
-    Statuses::instance().setAnalogSensorValue(analogSensor.getValue());
+    Statuses::instance().analogSensorValue = analogSensor.getValue();
     
     if (waterPlants==true) {
         if (analogSensor.getValue() < MAX_VAL_WATER_POT) {
             if (!reedSensor.isSensorClose()){
                 waterPomp.on();
-                Statuses::instance().setIsWaterPompOn(true);
+                Statuses::instance().isWaterPompOn = true;
             } else {
                 waterPomp.off();
-                Statuses::instance().setIsWaterPompOn(false);
+                Statuses::instance().isWaterPompOn = false;
             }
         } else if (analogSensor.getValue() >= MAX_VAL_WATER_POT) {
             waterPomp.off();
-            Statuses::instance().setIsWaterPompOn(false);
+            Statuses::instance().isWaterPompOn = false;
         }
     }
-    Statuses::instance().setReedSensorValue(reedSensor.isSensorClose());
+    Statuses::instance().reedSensorValue = reedSensor.isSensorClose();
 }

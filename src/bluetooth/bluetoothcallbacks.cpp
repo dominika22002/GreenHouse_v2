@@ -13,13 +13,19 @@
 #include <sstream>
 #include <iterator>
 namespace {
-    std::vector<int> getRequest(std::string request){
+    void getRequest(std::string request){
         std::stringstream requestStream(request);
         std::istream_iterator<int> begin(requestStream);
         std::istream_iterator<int> end;
         std::vector<int> requestVector(begin, end);
+    
+        Statuses::instance().currentRequest = requestVector[0];
+        Statuses::instance().currentValue = requestVector[1];
+        Serial.printf("Request %d with value %d \n",
+                        Statuses::instance().currentRequest,
+                        Statuses::instance().currentValue);
 
-        return requestVector;
+       
     }    
 }
 
@@ -30,32 +36,25 @@ void BluetoothCallBacks::onWrite(BLECharacteristic *pCharacteristic) {
         Serial.printf("Problem with request");
         return;
     }
-    std::vector<int> request(getRequest(value));
-    Statuses::instance().setCurrentRequest(request[0]);
-    Statuses::instance().setCurrentValue(request[1]);
-    
-    Serial.printf("Request %d with value %d",
-                        Statuses::instance().getCurrentRequest(),
-                        Statuses::instance().getCurrentValue());
+    getRequest(value);
 
-    TimeService::instance().setMode(Modes::MANUAL);
+    Statuses::instance().mode = Modes::MANUAL;
     TimeService::instance().resetTimeToResetMode();
-    Serial.println(TimeService::instance().getMode() == Modes::AUTOMATIC? "automatic" : "manual");
+    Serial.println(Statuses::instance().mode == Modes::AUTOMATIC ? "automatic" : "manual");
 }
 
 void BluetoothCallBacks::onRead(BLECharacteristic *pCharacteristic){
-    if (Statuses::instance().getCurrentRequest() != 0){
-        Serial.printf("Just send ok %d \n",Statuses::instance().getCurrentRequest());
-        uint8_t tempData[1];
-        tempData[0] = 1;
+    if (Statuses::instance().currentRequest != 0){
+        Serial.printf("Response to %d request\n",Statuses::instance().currentRequest);
+        uint8_t tempData[1] = {1};
         pCharacteristic->setValue(tempData, 1);
         pCharacteristic->notify();
         return;
     }
 
 
-    float temperature = Statuses::instance().getTemperatureValue();
-    float humidity = Statuses::instance().getHumidityValue();
+    float temperature = Statuses::instance().temperatureValue;
+    float humidity = Statuses::instance().humidityValue;
 
     // convert float value into 16 bit integer value (LSB first MSB last)
     uint8_t tempData[12];
@@ -65,14 +64,14 @@ void BluetoothCallBacks::onRead(BLECharacteristic *pCharacteristic){
     uint8_t temperatureDecPoint = (uint8_t)(temperature*10-temperatureInt*10);
     uint8_t humidityInt         = (uint8_t)(humidity);
     uint8_t humidityDecPoint    = (uint8_t)(humidity*10-humidityInt*10);
-    uint8_t analogInt           = (uint8_t)(Statuses::instance().getAnalogSensorValue());
+    uint8_t analogInt           = (uint8_t)(Statuses::instance().analogSensorValue);
 
-    uint8_t reedSensorBool  = (uint8_t)(Statuses::instance().getReedSensorValue());
-    uint8_t ledsPwmInt      = (uint8_t)(Statuses::instance().getLedsPwmValue());
-    uint8_t ledsBool        = (uint8_t)(Statuses::instance().getIsLedsOn());
-    uint8_t vent1Bool       = (uint8_t)(Statuses::instance().getIsVent1On());
-    uint8_t vent2Bool       = (uint8_t)(Statuses::instance().getIsVent2On());
-    uint8_t waterPompBool   = (uint8_t)(Statuses::instance().getIsWaterPompOn());
+    uint8_t reedSensorBool  = (uint8_t)(Statuses::instance().reedSensorValue);
+    uint8_t ledsPwmInt      = (uint8_t)(Statuses::instance().ledsPwmValue);
+    uint8_t ledsBool        = (uint8_t)(Statuses::instance().isLedsOn);
+    uint8_t vent1Bool       = (uint8_t)(Statuses::instance().isVent1On);
+    uint8_t vent2Bool       = (uint8_t)(Statuses::instance().isVent2On);
+    uint8_t waterPompBool   = (uint8_t)(Statuses::instance().isWaterPompOn);
 
 
     tempData[0]  = isDataBaseValue;

@@ -26,20 +26,20 @@ void Dht22Manager::automatic(){
 
     dhtSensor.measure();
 
-    Statuses::instance().setTemperatureValue(dhtSensor.getTemperature());
-    Statuses::instance().setHumidityValue(dhtSensor.getHumidity());
+    Statuses::instance().temperatureValue = dhtSensor.getTemperature();
+    Statuses::instance().humidityValue = dhtSensor.getHumidity();
 
     // Temperature sensor management
     if (dhtSensor.getTemperature() > MAX_TEMPERATURE){
         if (!vent1.getIsRunning()){
             vent1.start();
-            Statuses::instance().setIsVent1On(true);
+            Statuses::instance().isVent1On = true;
         }
     }    
     if (dhtSensor.getTemperature() <= MIN_TEMPERATURE){
         if (vent1.getIsRunning()){
             vent1.stop();
-            Statuses::instance().setIsVent1On(false);
+            Statuses::instance().isVent1On = false;
         }
         
     }
@@ -48,21 +48,21 @@ void Dht22Manager::automatic(){
     if (dhtSensor.getHumidity() > MAX_HUMIDITY){
         if (!vent1.getIsRunning()){
             vent1.start();
-            Statuses::instance().setIsVent1On(true);
+            Statuses::instance().isVent1On = true;
         }
         if (!vent2.getIsRunning()){
             vent2.stop();
-            Statuses::instance().setIsVent2On(true);
+            Statuses::instance().isVent1On =false;
         }
     }    
     if (dhtSensor.getHumidity() <= MIN_HUMIDITY){
         if (vent1.getIsRunning()){
             vent1.start();
-            Statuses::instance().setIsVent1On(false);
+            Statuses::instance().isVent2On = true;
         }
         if (vent2.getIsRunning()){
             vent2.stop();
-            Statuses::instance().setIsVent2On(false);
+            Statuses::instance().isVent2On = false;
         }
     }
     dhtSensor.printMeasureResults();
@@ -71,8 +71,8 @@ void Dht22Manager::automatic(){
 void Dht22Manager::manual(){
     dhtSensor.measure();
 
-    Statuses::instance().setTemperatureValue(dhtSensor.getTemperature());
-    Statuses::instance().setHumidityValue(dhtSensor.getHumidity());
+    Statuses::instance().temperatureValue = dhtSensor.getTemperature();
+    Statuses::instance().humidityValue = dhtSensor.getHumidity();
 
 }
 
@@ -87,7 +87,7 @@ void Dht22Manager::manualVent1(bool isRunningVent1){
         }
     }
 
-    Statuses::instance().setIsVent1On(isRunningVent1);
+    Statuses::instance().isVent1On = isRunningVent1;
 }
 
 void Dht22Manager::manualVent2(bool isRunningVent2){
@@ -100,5 +100,5 @@ void Dht22Manager::manualVent2(bool isRunningVent2){
             vent2.stop();
         }
     }
-    Statuses::instance().setIsVent2On(isRunningVent2);
+    Statuses::instance().isVent2On = isRunningVent2;
 }

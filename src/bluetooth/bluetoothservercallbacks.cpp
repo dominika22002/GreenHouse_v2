@@ -4,11 +4,11 @@
 #include <Arduino.h>
 
 void BluetoothServerCallBacks::onConnect(BLEServer* pServer) {
-    Statuses::instance().setIsBluetoothConnected(true);
+    Statuses::instance().isBluetoothConnected = true;
     Serial.println("device connected");
 }
 
 void BluetoothServerCallBacks::onDisconnect(BLEServer* pServer) {
-    Statuses::instance().setIsBluetoothConnected(false);
+    Statuses::instance().isBluetoothConnected = false;
     Serial.println("device disconnected");
 }

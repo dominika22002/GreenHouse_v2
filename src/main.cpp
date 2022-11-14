@@ -45,40 +45,40 @@ BLEService *pService;
 BLEAdvertising *pAdvertising;
 
 void doRequest(){
-    bool isRequest = Statuses::instance().getCurrentRequest() != 0;
+    bool isRequest = Statuses::instance().currentRequest != 0;
 
-    switch (Statuses::instance().getCurrentRequest())
+    switch (Statuses::instance().currentRequest)
     {
     case 1:
-        dht22Manager.manualVent1(Statuses::instance().getCurrentValue());
+        dht22Manager.manualVent1(Statuses::instance().currentValue);
         Serial.println("After dht22Manager.manualVent1()");
         break;
     
     case 2:
-        dht22Manager.manualVent2(Statuses::instance().getCurrentValue());
+        dht22Manager.manualVent2(Statuses::instance().currentValue);
         Serial.println("After dht22Manager.manualVent2()");
         break;
     
     case 3:
-        lightManager.manual(Statuses::instance().getCurrentValue());
+        lightManager.manual(Statuses::instance().currentValue);
         Serial.println("After lightManager.manual()");
         break;
     
     case 4:
-        waterManager.manual(Statuses::instance().getCurrentValue());
+        waterManager.manual(Statuses::instance().currentValue);
         Serial.println("After waterManager.manual()");
         break;
     
     case 5:
-        waterManager.manual(Statuses::instance().getCurrentValue());
+        waterManager.manual(Statuses::instance().currentValue);
         Serial.println("After waterManager.manual()");
         break;
     default:
         break;
     }
     if (isRequest){
-        Statuses::instance().setCurrentRequest(0);
-        Statuses::instance().setCurrentValue(0);
+        Statuses::instance().currentRequest = 0;
+        Statuses::instance().currentValue = 0;
     }
 }
 
@@ -107,27 +107,28 @@ void setup() {
     pService->start();
     pAdvertising = pServer->getAdvertising();
     pAdvertising->start();
+
+    Statuses::instance().mode = Modes::AUTOMATIC;
     // End of initialization bluetooth service
 }
 
 void loop() {
     delay(EspInitialization::DELAY_MS);
-    if (!Statuses::instance().getIsBluetoothConnected()){
+    if (!Statuses::instance().isBluetoothConnected){
         pAdvertising->start();
     }
     doRequest();
-    if (TimeService::instance().getMode() == Modes::AUTOMATIC) {
+    if (Statuses::instance().mode == Modes::AUTOMATIC) {
         dht22Manager.automatic();
          lightManager.manual(255);
         waterManager.automatic();
     }
 
-    if (TimeService::instance().getMode() == Modes::MANUAL) { 
-        Serial.printf("Time to reset timer: %d\n", TimeService::instance().getInitialTimeToResetMode() - TimeService::instance().getTimeToResetMode());
-        TimeService::instance().checkTimeToResetMode();
+    if (Statuses::instance().mode == Modes::MANUAL) { 
+        Serial.printf("Time to reset timer: %d\n", 
+                            TimeService::instance().initialTimeToResetMode - 
+                            TimeService::instance().timeToResetMode);
     }
-
-    TimeService::instance().checkTimeToMakeMeasurements();
-    TimeService::instance().checkTimeToAddMeasurementsToDataBase();
-    Serial.println(TimeService::instance().getMode() == Modes::AUTOMATIC? "automatic\n" : "manual\n");
+    TimeService::instance().checkTimes();
+    Serial.println(Statuses::instance().mode == Modes::AUTOMATIC? "automatic\n" : "manual\n");
 }
