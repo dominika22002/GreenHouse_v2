@@ -40,6 +40,9 @@ LightManager lightManager(PinOut::LEDS_PIN);
 
 // Bluetooth connection
 BLECharacteristic *pCharacteristic;
+BLEServer *pServer;
+BLEService *pService;
+BLEAdvertising *pAdvertising;
 
 void doRequest(){
     bool isRequest = Statuses::instance().getCurrentRequest() != 0;
@@ -88,9 +91,9 @@ void setup() {
 
     // Initialization of bluetooth service
     BLEDevice::init(BluetoothService::DEVICE_NAME);
-    BLEServer *pServer = BLEDevice::createServer();
+    pServer = BLEDevice::createServer();
     pServer->setCallbacks(new BluetoothServerCallBacks());
-    BLEService *pService = pServer->createService(BluetoothService::SERVICE_UUID);
+    pService = pServer->createService(BluetoothService::SERVICE_UUID);
 
     pCharacteristic= pService->createCharacteristic(
                                             BluetoothService::CHARACTERISTIC_UUID,
@@ -100,15 +103,18 @@ void setup() {
 
     pCharacteristic->setCallbacks(new BluetoothCallBacks());
 
-    pCharacteristic->setValue("Hello World");
+    pCharacteristic->setValue("GreenHouse says hello");
     pService->start();
-    BLEAdvertising *pAdvertising = pServer->getAdvertising();
+    pAdvertising = pServer->getAdvertising();
     pAdvertising->start();
     // End of initialization bluetooth service
 }
 
 void loop() {
     delay(EspInitialization::DELAY_MS);
+    if (!Statuses::instance().getIsBluetoothConnected()){
+        pAdvertising->start();
+    }
     doRequest();
     if (TimeService::instance().getMode() == Modes::AUTOMATIC) {
         dht22Manager.automatic();

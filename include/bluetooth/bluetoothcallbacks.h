@@ -3,7 +3,6 @@
 #include <BLEDevice.h>
 
 class BluetoothCallBacks: public BLECharacteristicCallbacks {
-    int currentRequest;
 public:
     BluetoothCallBacks();
     

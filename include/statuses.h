@@ -4,6 +4,7 @@
 class Statuses {
     int currentRequest;
     int currentValue;
+    int isBluetoothConnected;
 
     float analogSensorValue;
     float temperatureValue;
@@ -22,6 +23,7 @@ public:
 
     int getCurrentRequest(){ return currentRequest;}
     int getCurrentValue(){ return currentValue;}
+    bool getIsBluetoothConnected(){ return isBluetoothConnected;}
 
     float getAnalogSensorValue(){ return analogSensorValue;}
     float getTemperatureValue(){ return temperatureValue; }
@@ -36,6 +38,7 @@ public:
 
     void setCurrentRequest(int newCurrentRequest){currentRequest = newCurrentRequest;}
     void setCurrentValue(int newCurrentValue){currentValue = newCurrentValue;}
+    void setIsBluetoothConnected(bool newIsBluetoothConnected){isBluetoothConnected = newIsBluetoothConnected;}
 
     void setAnalogSensorValue(float newAnalogSensorValue){ analogSensorValue = newAnalogSensorValue; }
     void setTemperatureValue(float newTemperatureValue){ temperatureValue = newTemperatureValue; }

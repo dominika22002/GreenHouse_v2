@@ -23,9 +23,6 @@ namespace {
     }    
 }
 
-BluetoothCallBacks::BluetoothCallBacks() : currentRequest(0){
-}
-
 void BluetoothCallBacks::onWrite(BLECharacteristic *pCharacteristic) {
     std::string value = pCharacteristic->getValue();
 
@@ -34,7 +31,6 @@ void BluetoothCallBacks::onWrite(BLECharacteristic *pCharacteristic) {
         return;
     }
     std::vector<int> request(getRequest(value));
-    currentRequest = request[0];
     Statuses::instance().setCurrentRequest(request[0]);
     Statuses::instance().setCurrentValue(request[1]);
     
@@ -64,7 +60,7 @@ void BluetoothCallBacks::onRead(BLECharacteristic *pCharacteristic){
     // convert float value into 16 bit integer value (LSB first MSB last)
     uint8_t tempData[12];
 
-    uint8_t isDataBaseValue     = (uint8_t)(currentRequest);
+    uint8_t isDataBaseValue     = (uint8_t)(0);
     uint8_t temperatureInt      = (uint8_t)(temperature);
     uint8_t temperatureDecPoint = (uint8_t)(temperature*10-temperatureInt*10);
     uint8_t humidityInt         = (uint8_t)(humidity);
