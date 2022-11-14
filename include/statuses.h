@@ -30,5 +30,4 @@ public:
         static Statuses s;
         return s;
     } // instance
-
 };

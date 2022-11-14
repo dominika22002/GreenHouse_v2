@@ -82,6 +82,21 @@ void doRequest(){
     }
 }
 
+void automaticMode(){
+    if (Statuses::instance().mode == Modes::AUTOMATIC) {
+        dht22Manager.automatic();
+        lightManager.automatic();
+        waterManager.automatic();
+    }
+}
+
+void manualMode(){
+    if (Statuses::instance().mode == Modes::MANUAL) { 
+        Serial.printf("Time to reset timer: %d\n", 
+                            TimeService::instance().initialTimeToResetMode - 
+                            TimeService::instance().timeToResetMode);
+    }
+}
 
 
 }; // end namespace
@@ -118,17 +133,10 @@ void loop() {
         pAdvertising->start();
     }
     doRequest();
-    if (Statuses::instance().mode == Modes::AUTOMATIC) {
-        dht22Manager.automatic();
-         lightManager.manual(255);
-        waterManager.automatic();
-    }
+    automaticMode();
+    manualMode();
 
-    if (Statuses::instance().mode == Modes::MANUAL) { 
-        Serial.printf("Time to reset timer: %d\n", 
-                            TimeService::instance().initialTimeToResetMode - 
-                            TimeService::instance().timeToResetMode);
-    }
     TimeService::instance().checkTimes();
-    Serial.println(Statuses::instance().mode == Modes::AUTOMATIC? "automatic\n" : "manual\n");
+    Serial.printf("Application mode: ");
+    Serial.printf(Statuses::instance().mode == Modes::AUTOMATIC ? "automatic\n" : "manual\n");
 }
